@@ -1,0 +1,33 @@
+{
+    "stress": [
+        "Take a 10-minute break.",
+        "Drink enough water.",
+        "Practice deep breathing for 5 minutes.",
+        "Stretch your body."
+    ],
+
+    "burnout": [
+        "Talk with your manager.",
+        "Reduce overtime if possible.",
+        "Take scheduled leave.",
+        "Contact the Employee Assistance Program (EAP)."
+    ],
+
+    "sleep": [
+        "Maintain a consistent sleep schedule.",
+        "Avoid screens before bedtime.",
+        "Limit caffeine in the evening."
+    ],
+
+    "productivity": [
+        "Prioritize your most important task first.",
+        "Use the Pomodoro Technique.",
+        "Avoid multitasking."
+    ],
+
+    "work_life_balance": [
+        "Set clear work boundaries.",
+        "Take regular breaks.",
+        "Spend quality time with family."
+    ]
+}
