@@ -71,11 +71,18 @@ class RecommendationEngine:
         """
         Return recommendations.
         """
+        # Alias mapping for intents
+        alias_map = {
+            "anxiety": "stress",
+            "motivation": "productivity",
+            "career": "work_life_balance"
+        }
 
-        recommendations = self.recommendations.get(
-            intent,
-            []
-        )
+        key = alias_map.get(intent, intent)
+        recommendations = list(self.recommendations.get(key, []))
+
+        if not recommendations:
+            recommendations = self.recommendations.get("stress", [])[:]
 
         # -----------------------------
         # Emergency Recommendation

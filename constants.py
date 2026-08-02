@@ -70,6 +70,10 @@ INTENT_POLICY = "policy"
 
 INTENT_LEAVE = "leave"
 
+INTENT_LEAVE_POLICY = "leave_policy"
+
+INTENT_COMPANY_POLICY = "company_policy"
+
 INTENT_WORK_FROM_HOME = "work_from_home"
 
 INTENT_EMPLOYEE_BENEFITS = "employee_benefits"
@@ -78,9 +82,15 @@ INTENT_GREETING = "greeting"
 
 INTENT_GOODBYE = "goodbye"
 
+INTENT_GRATITUDE = "gratitude"
+
 INTENT_HELP = "help"
 
 INTENT_GENERAL = "general"
+
+INTENT_GENERAL_QUESTION = "general_question"
+
+INTENT_EMERGENCY = "emergency"
 
 INTENT_UNKNOWN = "unknown"
 

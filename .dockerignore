@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+
+# Git
+.git/
+.gitignore
+
+# VS Code
+.vscode/
+
+# Python Cache
+.pytest_cache/
+
+# ChromaDB (will be mounted as a volume)
+rag_db/
+
+# Streamlit Cache
+.streamlit/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+Dockerfile.old
+docker-compose.override.yml

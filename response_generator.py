@@ -19,7 +19,8 @@ class ResponseGenerator:
         parsed: ParsedResponse,
         recommendations=None,
         conversation_history="",
-        rag_context=""
+        rag_context="",
+        user_message=""
     ):
         """
         Build prompt for Llama.
@@ -40,6 +41,13 @@ class ResponseGenerator:
                 for item in recommendations
 
             )
+
+        if not user_message and conversation_history:
+            user_lines = [line for line in conversation_history.splitlines() if line.startswith("User:")]
+            if user_lines:
+                user_message = user_lines[-1].replace("User:", "").strip()
+            else:
+                user_message = conversation_history.splitlines()[-1]
 
         prompt = f"""
 You are WorkWell AI.
@@ -85,25 +93,23 @@ Recommendations
 Instructions
 ==============================
 
-1. Be empathetic.
+1. Be empathetic and supportive.
 
-2. Keep answers concise.
+2. Keep answers concise, clear, and direct.
 
-3. If recommendations are available,
-include them naturally.
+3. If recommendations are available, include them naturally in a friendly bulleted format.
 
-4. If knowledge base information is available,
-use it accurately.
+4. If knowledge base information is available, use it accurately.
 
 5. Never invent company policies.
 
-6. Answer naturally.
+6. Answer naturally as an assistant without echoing prompt headings or internal instructions.
 
 ==============================
 User Message
 ==============================
 
-{conversation_history.splitlines()[-1] if conversation_history else ""}
+{user_message}
 """
 
         return prompt
@@ -120,7 +126,8 @@ def generate_response(
     parsed,
     recommendations=None,
     conversation_history="",
-    rag_context=""
+    rag_context="",
+    user_message=""
 ):
     """
     Backward compatible wrapper.
@@ -134,6 +141,8 @@ def generate_response(
 
         conversation_history,
 
-        rag_context
+        rag_context,
+
+        user_message
 
     )

@@ -9,7 +9,15 @@ Qwen  -> Analysis
 Llama -> Response Generation
 """
 
-from ollama import chat
+import os
+from ollama import Client
+
+client = Client(
+    host=os.getenv(
+        "OLLAMA_HOST",
+        "http://localhost:11434"
+    )
+)
 
 from config import (
     ANALYSIS_MODEL,
@@ -34,7 +42,7 @@ class LLM:
         Send messages to Ollama.
         """
 
-        response = chat(
+        response = client.chat(
             model=model,
             messages=messages
         )
@@ -151,15 +159,3 @@ def generate_json(user_message: str):
     """
 
     return LLM.analyze(user_message)
-
-
-def generate_text(prompt: str):
-    """
-    Legacy wrapper.
-
-    Older files can still call:
-
-    generate_text()
-    """
-
-    return LLM.generate(prompt)

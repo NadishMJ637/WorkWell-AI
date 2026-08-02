@@ -24,8 +24,20 @@ from constants import (
 
     INTENT_LEAVE,
     INTENT_POLICY,
+    INTENT_LEAVE_POLICY,
+    INTENT_COMPANY_POLICY,
     INTENT_WORK_FROM_HOME,
-    INTENT_EMPLOYEE_BENEFITS
+    INTENT_EMPLOYEE_BENEFITS,
+
+    INTENT_STRESS,
+    INTENT_BURNOUT,
+    INTENT_ANXIETY,
+    INTENT_SLEEP,
+    INTENT_PRODUCTIVITY,
+    INTENT_WORK_LIFE_BALANCE,
+    INTENT_MOTIVATION,
+    INTENT_CAREER,
+    INTENT_EMERGENCY
 )
 
 
@@ -51,40 +63,16 @@ def decide_action(parsed: ParsedResponse):
     """
 
     # --------------------------------------------
-    # Greetings
+    # Emergency / Critical Priority
     # --------------------------------------------
 
-    if parsed.action == ACTION_GREETING:
+    if parsed.intent == INTENT_EMERGENCY or parsed.priority == PRIORITY_CRITICAL or parsed.action == ACTION_EMERGENCY:
 
         return Decision(
 
-            action=ACTION_GENERAL,
+            action=ACTION_EMERGENCY,
 
-            reason="Greeting detected."
-
-        )
-
-    # --------------------------------------------
-
-    if parsed.action == ACTION_GOODBYE:
-
-        return Decision(
-
-            action=ACTION_GENERAL,
-
-            reason="Goodbye detected."
-
-        )
-
-    # --------------------------------------------
-
-    if parsed.action == ACTION_HELP:
-
-        return Decision(
-
-            action=ACTION_GENERAL,
-
-            reason="Help requested."
+            reason="Critical priority or emergency intent detected."
 
         )
 
@@ -98,83 +86,67 @@ def decide_action(parsed: ParsedResponse):
 
         INTENT_POLICY,
 
+        INTENT_LEAVE_POLICY,
+
+        INTENT_COMPANY_POLICY,
+
         INTENT_WORK_FROM_HOME,
 
         INTENT_EMPLOYEE_BENEFITS
 
-    }:
+    } or parsed.action == ACTION_RAG:
 
         return Decision(
 
             action=ACTION_RAG,
 
-            reason="Company policy detected."
+            reason="Company policy / RAG intent detected."
 
         )
 
     # --------------------------------------------
-    # Critical Mental Health
+    # Mental Wellness → Recommendations
     # --------------------------------------------
 
-    if (
+    if parsed.intent in {
 
-        parsed.priority == PRIORITY_CRITICAL
+        INTENT_STRESS,
 
-    ):
+        INTENT_BURNOUT,
 
-        return Decision(
+        INTENT_ANXIETY,
 
-            action=ACTION_EMERGENCY,
+        INTENT_SLEEP,
 
-            reason="Critical priority."
+        INTENT_PRODUCTIVITY,
 
-        )
+        INTENT_WORK_LIFE_BALANCE,
 
-    # --------------------------------------------
+        INTENT_MOTIVATION,
 
-    if (
+        INTENT_CAREER
 
-        parsed.priority == PRIORITY_HIGH
-
-        and
-
-        parsed.sentiment == SENTIMENT_NEGATIVE
-
-    ):
+    } or parsed.action == ACTION_RECOMMENDATION:
 
         return Decision(
 
             action=ACTION_RECOMMENDATION,
 
-            reason="High priority negative sentiment."
+            reason="Mental wellness recommendation intent detected."
 
         )
 
     # --------------------------------------------
-    # LLM Recommendation
+    # Greetings / Goodbye / Help
     # --------------------------------------------
 
-    if parsed.action == ACTION_RECOMMENDATION:
+    if parsed.action in {ACTION_GREETING, ACTION_GOODBYE, ACTION_HELP}:
 
         return Decision(
 
-            action=ACTION_RECOMMENDATION,
+            action=ACTION_GENERAL,
 
-            reason="Recommendation requested."
-
-        )
-
-    # --------------------------------------------
-    # LLM RAG
-    # --------------------------------------------
-
-    if parsed.action == ACTION_RAG:
-
-        return Decision(
-
-            action=ACTION_RAG,
-
-            reason="RAG requested."
+            reason=f"{parsed.action.capitalize()} detected."
 
         )
 

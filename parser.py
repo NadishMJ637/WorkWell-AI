@@ -40,63 +40,146 @@ class ParsedResponse:
 # Parser
 # =====================================================
 
+import re
+
+from constants import (
+    ACTION_UNKNOWN,
+    ACTION_RAG,
+    ACTION_RECOMMENDATION,
+    ACTION_EMERGENCY,
+    ACTION_GREETING,
+    ACTION_GOODBYE,
+    ACTION_HELP,
+    ACTION_GENERAL,
+
+    INTENT_UNKNOWN,
+    INTENT_LEAVE_POLICY,
+    INTENT_COMPANY_POLICY,
+    INTENT_LEAVE,
+    INTENT_POLICY,
+    INTENT_WORK_FROM_HOME,
+    INTENT_EMPLOYEE_BENEFITS,
+    INTENT_STRESS,
+    INTENT_BURNOUT,
+    INTENT_ANXIETY,
+    INTENT_SLEEP,
+    INTENT_PRODUCTIVITY,
+    INTENT_WORK_LIFE_BALANCE,
+    INTENT_MOTIVATION,
+    INTENT_CAREER,
+    INTENT_GREETING,
+    INTENT_GOODBYE,
+    INTENT_HELP,
+    INTENT_EMERGENCY,
+
+    PRIORITY_LOW,
+    PRIORITY_NORMAL,
+    PRIORITY_HIGH,
+    PRIORITY_CRITICAL,
+
+    SENTIMENT_NEUTRAL
+)
+
+
+# =====================================================
+# Parsed Response
+# =====================================================
+
+@dataclass
+class ParsedResponse:
+
+    action: str = ACTION_UNKNOWN
+
+    intent: str = INTENT_UNKNOWN
+
+    sentiment: str = SENTIMENT_NEUTRAL
+
+    priority: str = PRIORITY_NORMAL
+
+    confidence: float = 0.0
+
+    reason: str = ""
+
+
+# =====================================================
+# Parser
+# =====================================================
+
 def parse_response(llm_output: str):
     """
     Parse the JSON returned by Qwen.
-
-    Parameters
-    ----------
-    llm_output : str
-
-    Returns
-    -------
-    ParsedResponse
     """
+    clean_output = llm_output.strip()
+
+    # Strip markdown code blocks if present
+    if "```" in clean_output:
+        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", clean_output, re.DOTALL)
+        if match:
+            clean_output = match.group(1)
+        else:
+            clean_output = re.sub(r"```[a-zA-Z]*", "", clean_output).replace("```", "").strip()
+
+    # Fallback to locate JSON braces
+    if not (clean_output.startswith("{") and clean_output.endswith("}")):
+        first_brace = clean_output.find("{")
+        last_brace = clean_output.rfind("}")
+        if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
+            clean_output = clean_output[first_brace:last_brace + 1]
 
     try:
+        data = json.loads(clean_output)
+    except Exception:
+        data = {}
 
-        data = json.loads(llm_output)
+    intent = data.get("intent", INTENT_UNKNOWN)
+    sentiment = data.get("sentiment", SENTIMENT_NEUTRAL) or SENTIMENT_NEUTRAL
+    stress_level = data.get("stress_level", "").lower()
+    
+    # Priority mapping
+    priority = data.get("priority", "").lower()
+    if not priority:
+        if stress_level in ["high", "severe"]:
+            priority = PRIORITY_HIGH
+        elif stress_level in ["critical", "emergency"]:
+            priority = PRIORITY_CRITICAL
+        elif stress_level in ["low"]:
+            priority = PRIORITY_LOW
+        else:
+            priority = PRIORITY_NORMAL
 
-    except json.JSONDecodeError:
+    # Action inference if missing or unknown
+    action = data.get("action", "").lower()
+    if not action or action == ACTION_UNKNOWN:
+        if intent in {INTENT_LEAVE_POLICY, INTENT_COMPANY_POLICY, INTENT_LEAVE, INTENT_POLICY, INTENT_WORK_FROM_HOME, INTENT_EMPLOYEE_BENEFITS}:
+            action = ACTION_RAG
+        elif intent in {INTENT_STRESS, INTENT_BURNOUT, INTENT_ANXIETY, INTENT_SLEEP, INTENT_PRODUCTIVITY, INTENT_WORK_LIFE_BALANCE, INTENT_MOTIVATION, INTENT_CAREER}:
+            action = ACTION_RECOMMENDATION
+        elif intent == INTENT_GREETING:
+            action = ACTION_GREETING
+        elif intent == INTENT_GOODBYE:
+            action = ACTION_GOODBYE
+        elif intent == INTENT_HELP:
+            action = ACTION_HELP
+        elif intent == INTENT_EMERGENCY:
+            action = ACTION_EMERGENCY
+        else:
+            action = ACTION_GENERAL
 
-        return ParsedResponse()
+    confidence = 0.0
+    try:
+        confidence = float(data.get("confidence", 0.8 if intent != INTENT_UNKNOWN else 0.0))
+    except (ValueError, TypeError):
+        confidence = 0.0
+
+    reason = data.get("reason", f"Intent identified as {intent}")
 
     return ParsedResponse(
-
-        action=data.get(
-            "action",
-            ACTION_UNKNOWN
-        ),
-
-        intent=data.get(
-            "intent",
-            INTENT_UNKNOWN
-        ),
-
-        sentiment=data.get(
-            "sentiment",
-            SENTIMENT_NEUTRAL
-        ),
-
-        priority=data.get(
-            "priority",
-            PRIORITY_NORMAL
-        ),
-
-        confidence=float(
-
-            data.get(
-                "confidence",
-                0.0
-            )
-
-        ),
-
-        reason=data.get(
-            "reason",
-            ""
-        )
-
+        action=action,
+        intent=intent,
+        sentiment=sentiment,
+        priority=priority,
+        confidence=confidence,
+        reason=reason
     )
 
 

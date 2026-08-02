@@ -34,7 +34,7 @@ KNOWLEDGE_FOLDER = "knowledge"
 # RECOMMENDATIONS
 # =====================================================
 
-RECOMMENDATION_FILE = "data/recommendations.json"
+RECOMMENDATION_FILE = "data/recommendation.json"
 
 # =====================================================
 # RAG

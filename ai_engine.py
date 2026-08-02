@@ -127,7 +127,9 @@ class AIEngine:
 
                 recommendations,
 
-                conversation_history
+                conversation_history,
+
+                user_message=user_message
 
             )
 
@@ -159,7 +161,9 @@ class AIEngine:
 
                 [],
 
-                conversation_history
+                conversation_history,
+
+                user_message=user_message
 
             )
 
